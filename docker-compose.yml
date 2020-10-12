@@ -1,0 +1,70 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=insight_password
+      - POSTGRES_USER=insight
+      - POSTGRES_DB=insight
+    ports:
+      - 5432:5432
+    networks:
+      - net_insight
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+  adminer:
+    container_name: adminer
+    image: adminer
+    depends_on:
+      - postgres
+    environment:
+      - ADMINER_DEFAULT_DB_DRIVER=pgsql
+      - ADMINER_DEFAULT_DB_HOST=postgres
+      - ADMINER_DEFAULT_DB_NAME=adminer
+    ports:
+      - 8080:8080
+    networks:
+      - net_insight
+    restart: always
+  front-insight:
+    image: nginx:alpine
+    ports:
+      - 3000:80
+    volumes:
+      - ./front-insight:/usr/share/nginx/html
+  back-insight:
+    build:
+      context: back-insight
+      dockerfile: ./Dockerfile
+    environment:
+      - NODE_ENV=docker
+      - DATABASE_HOST=postgres
+      - DATABASE_DB=insight
+      - DATABASE_USER=insight
+      - DATABASE_PASSWORD=insight_password
+    ports:
+        - 3030:8000
+    volumes:
+      - ./back-insight:/opt/back-insight
+    networks:
+      - net_insight
+  cron-insight:
+    build:
+      context: back-insight
+      dockerfile: ./Dockerfile
+    environment:
+      - NODE_ENV=docker
+      - CRON_INSIGHT=true
+      - DATABASE_HOST=postgres
+      - DATABASE_DB=insight
+      - DATABASE_USER=insight
+      - DATABASE_PASSWORD=insight_password
+    volumes:
+      - ./back-insight:/opt/back-insight
+    networks:
+      - net_insight
+
+networks:
+  net_insight:
+    driver: bridge
