@@ -1,0 +1,24 @@
+{
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "env": {
+    "node": true,
+    "es6": true,
+    "browser": true,
+    "amd": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "no-prototype-builtins": 0,
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allow": ["_id", "__v", "_readyState"]
+      }
+    ],
+    "no-use-before-define": 0
+  }
+}

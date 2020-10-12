@@ -4,10 +4,11 @@ const knex = require('knex');
 
 const dbConfig = require('./knexfile');
 const PerformanceScore = require('./models/PerformanceScore');
+const BootupTimeScore = require('./models/BootupTimeScore');
 
-const _knex = knex(dbConfig);
+const initKnex = knex(dbConfig);
 
-require('dotenv').config()
+require('dotenv').config();
 
 const { GOOGLE_API_KEY } = process.env;
 
@@ -19,9 +20,9 @@ const job = new CronJob(
   '* * * * *',
   async () => {
     try {
-      const performanceTable = await _knex.schema.hasTable('performance_score');
+      const performanceTable = await initKnex.schema.hasTable('performance_score');
       if (!performanceTable) {
-        console.log('No performance_table, exiting...')
+        console.log('No performance_score table, exiting...');
         return;
       }
       const { data } = await axios.get(insightUrl);
@@ -29,13 +30,23 @@ const job = new CronJob(
         console.error('Error on request', data);
         return;
       }
-      const date = new Date();
-      await PerformanceScore.query()
-        .insert({
-          date_performance: date,
-          score: data.lighthouseResult.categories.performance.score
+      const date = data.lighthouseResult.fetchTime;
+      await PerformanceScore.query().insert({
+        date_performance: date,
+        score: data.lighthouseResult.categories.performance.score
       });
-      console.log(`Date: %s | Score: ${data.lighthouseResult.categories.performance.score}`, date);
+
+      const bootupTime = data.lighthouseResult.audits['bootup-time'];
+      await BootupTimeScore.query().insert({
+        score: bootupTime.score,
+        timing: Math.ceil(bootupTime.numericValue) / 1000,
+        date_bootup: date
+      });
+
+      console.log(
+        `Date: %s | Performance Score: ${data.lighthouseResult.categories.performance.score}`,
+        date
+      );
     } catch (error) {
       console.error(error.message);
     }
