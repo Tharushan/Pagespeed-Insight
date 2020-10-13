@@ -47,6 +47,7 @@ services:
         - 3030:8000
     volumes:
       - ./back-insight:/opt/back-insight
+      - /opt/back-insight/node_modules/
     networks:
       - net_insight
   cron-insight:
@@ -62,6 +63,7 @@ services:
       - DATABASE_PASSWORD=insight_password
     volumes:
       - ./back-insight:/opt/back-insight
+      - /opt/back-insight/node_modules/
     networks:
       - net_insight
 
