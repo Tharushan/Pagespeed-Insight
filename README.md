@@ -43,3 +43,5 @@ Then wait some minutes ( the cron is running each minute to fetch data on pagesp
 
 The front is accessible on [http://localhost:3000/](http://localhost:3000/)
 
+## Architecture
+![Architecture](img/Pagespeed-archi.png)
