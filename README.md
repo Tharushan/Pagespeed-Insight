@@ -36,7 +36,7 @@ docker-compose build && docker-compose up -d
 Now you can create tables using :
 
 ```bash
-cd back-insight && docker-compose exec back-insight npm run migrate
+docker-compose exec back-insight npm run migrate
 ```
 
 Then wait some minutes ( the cron is running each minute to fetch data on pagespeed Insight )
